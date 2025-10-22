@@ -6,7 +6,7 @@ import os
 # ---------------------------
 # Load CART rules (relative path)
 # ---------------------------
-file_path = os.path.join(os.path.dirname(__file__), "cart_rules_with_prediction.json")
+file_path = os.path.join(os.path.dirname(__file__), "cart")
 with open(file_path, "r") as f:
     cart_rules_raw = json.load(f)
 
