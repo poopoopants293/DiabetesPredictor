@@ -116,5 +116,5 @@ if st.button("Predict"):
     cart_pred = cart_predict(user_data)
 
     st.subheader("Prediction Results")
-    st.write(f"**Logistic Regression Probability of Diabetes:** {log_prob:.4f}")
-    st.write(f"**CART Prediction:** {'Diabetes (1)' if cart_pred==1 else 'No Diabetes (0)'}")
+    st.write(f"**Estimated probability of developing of Diabetes:** {log_prob:.4f}")
+    st.write(f"**Predicted Diabetes Status (1 = High Risk!):** {'Diabetes (1)' if cart_pred==1 else 'No Diabetes (0)'}")
