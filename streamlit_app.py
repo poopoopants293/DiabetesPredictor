@@ -76,11 +76,14 @@ def logistic_predict(inputs):
             logit += coeffs[var] * value
     prob = 1 / (1 + np.exp(-logit))
     return prob
+age_bins = np.linspace(18, 80, 14)
 def age_to_factor(age):
-    # Use numpy digitize to get the bin index (1–13)
+    # Ensure age is within bounds
+    age = min(max(age, 18), 80)
+    # digitize returns bin index (1-based)
     factor = np.digitize(age, age_bins, right=False)
-    # Clip to 1–13 just in case
-    factor = min(max(factor, 1), 13)
+    # Clip to 1–13
+    factor = min(factor, 13)
     return factor
 # ---------------------------
 # Streamlit Interface
