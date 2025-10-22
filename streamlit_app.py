@@ -1,9 +1,13 @@
+import streamlit as st
 import numpy as np
 import json
+import os
 
-# Load CART rules
-# Load CART rules from JSON file in the same folder as the script
-with open("cart_rules_with_prediction.json", "r") as f:
+# ---------------------------
+# Load CART rules (relative path)
+# ---------------------------
+file_path = os.path.join(os.path.dirname(__file__), "cart_rules_with_prediction.json")
+with open(file_path, "r") as f:
     cart_rules_raw = json.load(f)
 
 # Convert to usable format
@@ -11,7 +15,6 @@ cart_rules = {}
 for key, val in cart_rules_raw.items():
     cond = val["conditions"][0]  # get string from list
     pred = val["prediction"][0]  # get int from list
-    # Map R factor to 0/1 (assuming 1 = No, 2 = Yes in R)
     if pred > 1:
         pred = 1
     cart_rules[key] = {
@@ -19,9 +22,11 @@ for key, val in cart_rules_raw.items():
         "prediction": pred
     }
 
-# Function to evaluate a single rule
+# ---------------------------
+# CART functions
+# ---------------------------
 def eval_rule(rule_str, inputs):
-    if rule_str.strip() == "":  # empty rule
+    if rule_str.strip() == "":
         return False
     conditions = rule_str.split("&")[1:]  # skip "root"
     for cond in conditions:
@@ -40,7 +45,6 @@ def eval_rule(rule_str, inputs):
                 return False
     return True
 
-# CART predictor
 def cart_predict(inputs):
     for key in sorted(cart_rules.keys(), key=lambda x: int(x)):
         rule = cart_rules[key]
@@ -49,7 +53,7 @@ def cart_predict(inputs):
     return 0
 
 # ---------------------------
-# Logistic regression coefficients
+# Logistic regression
 # ---------------------------
 coeffs = {
     '(Intercept)': -5.597316,
@@ -74,30 +78,43 @@ def logistic_predict(inputs):
     return prob
 
 # ---------------------------
-# Ask user for input
+# Streamlit Interface
 # ---------------------------
-def get_user_input():
-    print("Enter the following inputs:")
-    data = {}
-    data['HighBP'] = int(input("HighBP (0/1): "))
-    data['HighChol'] = int(input("HighChol (0/1): "))
-    data['BMI'] = float(input("BMI: "))
-    data['HeartDiseaseorAttack'] = int(input("Heart Disease/Attack (0/1): "))
-    data['PhysActivity'] = int(input("Physical Activity (0/1): "))
-    data['HvyAlcoholConsump'] = int(input("Heavy Alcohol Consumption (0/1): "))
-    data['GenHlth'] = float(input("General Health (1-5): "))
-    data['DiffWalk'] = int(input("Difficulty Walking (0/1): "))
-    data['Sex'] = int(input("Sex (1=Male, 0=Female): "))
-    data['Age'] = float(input("Age: "))
-    return data
+st.title("Diabetes Prediction App")
+st.markdown("Enter patient data to get predictions from both Logistic Regression and CART model.")
 
-# ---------------------------
-# Run predictions
-# ---------------------------
-user_data = get_user_input()
+# Sidebar inputs
+st.sidebar.header("Patient Inputs")
+HighBP = st.sidebar.radio("HighBP", [0, 1])
+HighChol = st.sidebar.radio("HighChol", [0, 1])
+BMI = st.sidebar.slider("BMI", 10.0, 50.0, 25.0)
+HeartDiseaseorAttack = st.sidebar.radio("Heart Disease/Attack", [0, 1])
+PhysActivity = st.sidebar.radio("Physical Activity", [0, 1])
+HvyAlcoholConsump = st.sidebar.radio("Heavy Alcohol Consumption", [0, 1])
+GenHlth = st.sidebar.slider("General Health (1=Poor, 5=Excellent)", 1.0, 5.0, 3.0)
+DiffWalk = st.sidebar.radio("Difficulty Walking", [0, 1])
+Sex = st.sidebar.radio("Sex", [0, 1], format_func=lambda x: "Female" if x==0 else "Male")
+Age = st.sidebar.slider("Age", 0, 120, 30)
 
-log_prob = logistic_predict(user_data)
-cart_pred = cart_predict(user_data)
+# Collect inputs into dictionary
+user_data = {
+    "HighBP": HighBP,
+    "HighChol": HighChol,
+    "BMI": BMI,
+    "HeartDiseaseorAttack": HeartDiseaseorAttack,
+    "PhysActivity": PhysActivity,
+    "HvyAlcoholConsump": HvyAlcoholConsump,
+    "GenHlth": GenHlth,
+    "DiffWalk": DiffWalk,
+    "Sex": Sex,
+    "Age": Age
+}
 
-print(f"\nLogistic Regression Probability: {log_prob:.4f}")
-print(f"CART Prediction (0 = No Diabetes, 1 = Diabetes): {cart_pred}")
+# Predict button
+if st.button("Predict"):
+    log_prob = logistic_predict(user_data)
+    cart_pred = cart_predict(user_data)
+
+    st.subheader("Prediction Results")
+    st.write(f"**Logistic Regression Probability of Diabetes:** {log_prob:.4f}")
+    st.write(f"**CART Prediction:** {'Diabetes (1)' if cart_pred==1 else 'No Diabetes (0)'}")
