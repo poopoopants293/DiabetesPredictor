@@ -76,7 +76,12 @@ def logistic_predict(inputs):
             logit += coeffs[var] * value
     prob = 1 / (1 + np.exp(-logit))
     return prob
-
+def age_to_factor(age):
+    # Use numpy digitize to get the bin index (1–13)
+    factor = np.digitize(age, age_bins, right=False)
+    # Clip to 1–13 just in case
+    factor = min(max(factor, 1), 13)
+    return factor
 # ---------------------------
 # Streamlit Interface
 # ---------------------------
@@ -85,16 +90,17 @@ st.markdown("Enter patient data to get predictions from both Logistic Regression
 
 # Sidebar inputs
 st.sidebar.header("Patient Inputs")
-HighBP = st.sidebar.radio("HighBP", [0, 1])
-HighChol = st.sidebar.radio("HighChol", [0, 1])
+HighBP = st.sidebar.radio("HighBP (Yes(1), No(0))", [0, 1])
+HighChol = st.sidebar.radio("HighChol (Yes(1), No(0))", [0, 1])
 BMI = st.sidebar.slider("BMI", 10.0, 50.0, 25.0)
-HeartDiseaseorAttack = st.sidebar.radio("Heart Disease/Attack", [0, 1])
-PhysActivity = st.sidebar.radio("Physical Activity", [0, 1])
-HvyAlcoholConsump = st.sidebar.radio("Heavy Alcohol Consumption", [0, 1])
-GenHlth = st.sidebar.slider("General Health (1=Poor, 5=Excellent)", 1.0, 5.0, 3.0)
-DiffWalk = st.sidebar.radio("Difficulty Walking", [0, 1])
-Sex = st.sidebar.radio("Sex", [0, 1], format_func=lambda x: "Female" if x==0 else "Male")
-Age = st.sidebar.slider("Age", 0, 120, 30)
+HeartDiseaseorAttack = st.sidebar.radio("Heart Disease/Attack before? (Yes(1), No(0))", [0, 1])
+PhysActivity = st.sidebar.radio("Physical activity in past 30 days? (Yes(1), No(0))", [0, 1])
+HvyAlcoholConsump = st.sidebar.radio("Heavy drinkers (adult men having more than 14 drinks per week and adult women having more than 7 drinks per week) (Yes(1), No(0))", [0, 1])
+GenHlth = st.sidebar.slider("General Health (5=Poor, 1=Excellent)", 1.0, 5.0, 3.0)
+DiffWalk = st.sidebar.radio("Difficulty Walking (Yes(1), No(0))", [0, 1])
+Sex = st.sidebar.radio("Sex (Male(1), Female(0))", [0, 1], format_func=lambda x: "Female" if x==0 else "Male")
+Age = st.sidebar.slider("Age", 18, 80, 30)
+Age_factor = age_to_factor(Age)
 
 # Collect inputs into dictionary
 user_data = {
@@ -107,7 +113,7 @@ user_data = {
     "GenHlth": GenHlth,
     "DiffWalk": DiffWalk,
     "Sex": Sex,
-    "Age": Age
+    "Age": Age_factor
 }
 
 # Predict button
