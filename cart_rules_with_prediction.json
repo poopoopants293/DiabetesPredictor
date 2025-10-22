@@ -1,0 +1,34 @@
+{
+  "3": {
+    "conditions": ["root & HighBP=1"],
+    "prediction": [1]
+  },
+  "5": {
+    "conditions": ["root & HighBP=0 & GenHlth>=2.5"],
+    "prediction": [1]
+  },
+  "7": {
+    "conditions": ["root & HighBP=1 & GenHlth>=2.5"],
+    "prediction": [1]
+  },
+  "8": {
+    "conditions": [""],
+    "prediction": [2]
+  },
+  "11": {
+    "conditions": ["root & HighBP=0 & GenHlth>=2.5 & Age>=5.5"],
+    "prediction": [1]
+  },
+  "13": {
+    "conditions": ["root & HighBP=1 & GenHlth< 2.5 & Age>=6.5"],
+    "prediction": [1]
+  },
+  "14": {
+    "conditions": [""],
+    "prediction": [2]
+  },
+  "15": {
+    "conditions": [""],
+    "prediction": [2]
+  }
+}
