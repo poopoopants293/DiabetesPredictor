@@ -93,8 +93,8 @@ st.markdown("Enter patient data to get predictions from both Logistic Regression
 
 # Sidebar inputs
 st.sidebar.header("Patient Inputs")
-HighBP = st.sidebar.radio("HighBP (Yes(1), No(0))", [0, 1])
-HighChol = st.sidebar.radio("HighChol (Yes(1), No(0))", [0, 1])
+HighBP = st.sidebar.radio("High Blood Pressure (Yes(1), No(0))", [0, 1])
+HighChol = st.sidebar.radio("High Cholesterol (Yes(1), No(0))", [0, 1])
 BMI = st.sidebar.slider("BMI", 10.0, 50.0, 25.0)
 HeartDiseaseorAttack = st.sidebar.radio("Heart Disease/Attack before? (Yes(1), No(0))", [0, 1])
 PhysActivity = st.sidebar.radio("Physical activity in past 30 days? (Yes(1), No(0))", [0, 1])
