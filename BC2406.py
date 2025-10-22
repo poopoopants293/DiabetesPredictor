@@ -2,8 +2,8 @@ import numpy as np
 import json
 
 # Load CART rules
-#change to "cart_rules_with_prediction.json" file pathname
-with open("/Users/javier/cart_rules_with_prediction.json", "r") as f:
+# Load CART rules from JSON file in the same folder as the script
+with open("cart_rules_with_prediction.json", "r") as f:
     cart_rules_raw = json.load(f)
 
 # Convert to usable format
