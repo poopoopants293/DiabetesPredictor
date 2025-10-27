@@ -96,51 +96,56 @@ def age_to_factor(age):
 st.title("Diabetes Prediction App")
 st.markdown("Enter data to get prediction.")
 
-def generate_advice(cart_pred, log_prob):
+def generate_advice(prediction, probability):
     """
-    Generate a tailored health message based on CART prediction and logistic probability.
-    Uses rules for risk, then calls OpenAI to phrase the message naturally.
+    Generate a tailored health message based on the predicted diabetes status 
+    and estimated probability. Uses rules for risk, then calls OpenAI to rephrase 
+    the message naturally in a friendly tone.
     """
-    # 1️⃣ Determine the base message based on logic
-    if cart_pred == 1:
+    # 1️⃣ Base message based on prediction and probability
+    if prediction == 1:
         base_message = (
-            "You are at high risk of diabetes. "
+            "You are predicted to be at high risk of diabetes. "
             "It is strongly recommended to consult a healthcare professional. "
-            "Monitor blood sugar, maintain a healthy diet, and exercise regularly."
+            "Monitor your blood sugar, maintain a healthy diet, and exercise regularly."
         )
-    elif log_prob > 0.7:
+    elif probability > 0.7:
         base_message = (
-            f"Your CART model did not diagnose diabetes, but your estimated probability is {log_prob:.2f}. "
-            "This indicates a high chance. Please consider consulting a healthcare professional. "
+            f"Your prediction indicates no diabetes, but your estimated probability is {probability:.2f}. "
+            "This suggests a high chance of developing diabetes. Please consider consulting a healthcare professional. "
             "Maintain a healthy lifestyle and monitor your health closely."
         )
     else:
         base_message = (
-            f"Your estimated diabetes probability is {log_prob:.2f}, and CART predicts no diabetes. "
-            "You are currently at low risk, but prevention is key. "
+            f"Your estimated probability of developing diabetes is {probability:.2f}, and your prediction shows low risk. "
+            "You are currently at low risk, but prevention is important. "
             "Maintain a balanced diet, stay active, and monitor your health regularly."
         )
 
-    # 2️⃣ Optional: Let OpenAI rephrase naturally (friendly tone)
-    prompt = f"Rephrase the following health advice in a friendly, clear, and supportive tone:\n\n{base_message}"
+    # 2️⃣ Ask OpenAI to rephrase in a friendly and supportive tone
+    prompt = (
+        "Rephrase the following health advice in a friendly, clear, and supportive tone, and add additional recommendations based on individual's likelihood"
+        "without mentioning specific models or technical terms:\n\n"
+        f"{base_message}"
+    )
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful health assistant."},
+                {"role": "system", "content": "You are a helpful and supportive health assistant."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=200,
-            temperature=0.6
+            max_tokens=250,
+            temperature=0.7
         )
         advice = response.choices[0].message.content.strip()
-    except Exception:
+    except Exception as e:
         # If OpenAI fails, fallback to base message
         advice = base_message
+        print(f"OpenAI API call failed: {e}")
 
     return advice
-
 
 # Sidebar inputs
 st.sidebar.header("Patient Inputs")
