@@ -89,7 +89,7 @@ def age_to_factor(age):
 # Streamlit Interface
 # ---------------------------
 st.title("Diabetes Prediction App")
-st.markdown("Enter patient data to get predictions from both Logistic Regression and CART model.")
+st.markdown("Enter data to get prediction.")
 
 # Sidebar inputs
 st.sidebar.header("Patient Inputs")
