@@ -2,6 +2,11 @@ import streamlit as st
 import numpy as np
 import json
 import os
+####trial
+import openai
+from dotenv import load_dotenv
+load_dotenv()  # Loads variables from .env file
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # ---------------------------
 # Load CART rules (relative path)
@@ -91,6 +96,52 @@ def age_to_factor(age):
 st.title("Diabetes Prediction App")
 st.markdown("Enter data to get prediction.")
 
+def generate_advice(cart_pred, log_prob):
+    """
+    Generate a tailored health message based on CART prediction and logistic probability.
+    Uses rules for risk, then calls OpenAI to phrase the message naturally.
+    """
+    # 1️⃣ Determine the base message based on logic
+    if cart_pred == 1:
+        base_message = (
+            "You are at high risk of diabetes. "
+            "It is strongly recommended to consult a healthcare professional. "
+            "Monitor blood sugar, maintain a healthy diet, and exercise regularly."
+        )
+    elif log_prob > 0.7:
+        base_message = (
+            f"Your CART model did not diagnose diabetes, but your estimated probability is {log_prob:.2f}. "
+            "This indicates a high chance. Please consider consulting a healthcare professional. "
+            "Maintain a healthy lifestyle and monitor your health closely."
+        )
+    else:
+        base_message = (
+            f"Your estimated diabetes probability is {log_prob:.2f}, and CART predicts no diabetes. "
+            "You are currently at low risk, but prevention is key. "
+            "Maintain a balanced diet, stay active, and monitor your health regularly."
+        )
+
+    # 2️⃣ Optional: Let OpenAI rephrase naturally (friendly tone)
+    prompt = f"Rephrase the following health advice in a friendly, clear, and supportive tone:\n\n{base_message}"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful health assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=200,
+            temperature=0.6
+        )
+        advice = response.choices[0].message.content.strip()
+    except Exception:
+        # If OpenAI fails, fallback to base message
+        advice = base_message
+
+    return advice
+
+
 # Sidebar inputs
 st.sidebar.header("Patient Inputs")
 HighBP = st.sidebar.radio("High Blood Pressure (Yes(1), No(0))", [0, 1])
@@ -127,3 +178,7 @@ if st.button("Predict"):
     st.subheader("Prediction Results")
     st.write(f"**Estimated probability of developing of Diabetes:** {log_prob:.4f}")
     st.write(f"**Predicted Diabetes Status (1 = High Risk!):** {'Diabetes (1)' if cart_pred==1 else 'No Diabetes (0)'}")
+    advice = generate_advice(cart_pred, log_prob)
+    st.subheader("Personalized Health Advice")
+    st.write(advice)
+
