@@ -6,7 +6,7 @@ import os
 import openai
 import streamlit as st
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+openai.api_key = DiabetesPredictor.secrets["OPENAI_API_KEY"]
 #from dotenv import load_dotenv
 #load_dotenv()  # Loads variables from .env file
 #openai.api_key = os.getenv("OPENAI_API_KEY")
