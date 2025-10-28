@@ -4,9 +4,12 @@ import json
 import os
 ####trial
 import openai
-from dotenv import load_dotenv
-load_dotenv()  # Loads variables from .env file
-openai.api_key = os.getenv("OPENAI_API_KEY")
+import streamlit as st
+
+openai.api_key = st.secrets["OPENAI_API_KEY"]
+#from dotenv import load_dotenv
+#load_dotenv()  # Loads variables from .env file
+#openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # ---------------------------
 # Load CART rules (relative path)
